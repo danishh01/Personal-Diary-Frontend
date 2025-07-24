@@ -71,67 +71,64 @@ const Login = () => {
     }
   }, [currentUser])
 
-  return (
-    <div className="h-screen bg-cyan-50 overflow-hidden relative">
-      <div className="login-ui-box right-10 -top-40" />
+  return (<div className="min-h-screen bg-cyan-50 overflow-hidden relative">
+  <div className="login-ui-box right-10 -top-40 absolute z-0" />
 
-      <div className="container h-screen flex items-center justify-center px-20 mx-auto">
-        <div className="w-2/4 h-[90vh] flex items-end bg-[url(/frontImage.jpg)] bg-cover bg-center rounded-lg p-10 z-50">
-          <div>
-            <h4 className="text-5xl text-white font-semibold leading-[58px]">
-              Create Your <br /> Travel Stories
-            </h4>
-
-            <p className="text-[15px] text-white leading-6 pr-7 mt-4">
-              Record your travel experiences and memories in your travel journey
-            </p>
-          </div>
-        </div>
-
-        <div className="w-2/4 h-[75vh] bg-white rounded-r-lg relative p-16 shadow-lg shadow-cyan-200/20">
-          <form onSubmit={handleSubmit}>
-            <h4 className="text-2xl font-semibold mb-7">Login</h4>
-
-            <input
-              type="email"
-              placeholder="Email"
-              className="input-box"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-
-            <PasswordInput
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value)
-              }}
-            />
-
-            {error && <p className="text-red-500 text-xs pb-1">{error}</p>}
-
-            {loading ? (
-              <p className="animate-pulse w-full text-center btn-primary">
-                LOADING...
-              </p>
-            ) : (
-              <button type="submit" className="btn-primary">
-                LOGIN
-              </button>
-            )}
-
-            <p className="text-xs text-slate-500 text-center my-4">Or</p>
-
-            <button
-              type="submit"
-              className="btn-primary btn-light"
-              onClick={() => navigate("/sign-up")}
-            >
-              CREATE ACCOUNT
-            </button>
-          </form>
-        </div>
+  <div className="container min-h-screen flex flex-col lg:flex-row items-center justify-center px-4 md:px-10 lg:px-20 mx-auto gap-10 relative z-10">
+    <div className="w-full lg:w-1/2 h-64 md:h-96 lg:h-[90vh] bg-[url(/coverphoto.JPG)] bg-cover bg-center rounded-lg p-6 md:p-10 flex items-end">
+      <div>
+        <h4 className="text-3xl md:text-4xl lg:text-5xl text-white font-semibold leading-snug md:leading-[50px] lg:leading-[58px]">
+          Create Your <br /> Travel Stories
+        </h4>
+        <p className="text-sm md:text-base text-white leading-6 pr-2 md:pr-7 mt-4">
+          Record your travel experiences and memories in your travel journey
+        </p>
       </div>
     </div>
+
+    <div className="w-full lg:w-1/2 bg-white rounded-lg relative p-6 md:p-10 shadow-lg shadow-cyan-200/20">
+      <form onSubmit={handleSubmit}>
+        <h4 className="text-xl md:text-2xl font-semibold mb-6">Login</h4>
+
+        <input
+          type="email"
+          placeholder="Email"
+          className="input-box"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <PasswordInput
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        {error && <p className="text-red-500 text-xs pb-1">{error}</p>}
+
+        {loading ? (
+          <p className="animate-pulse w-full text-center btn-primary">
+            LOADING...
+          </p>
+        ) : (
+          <button type="submit" className="btn-primary">
+            LOGIN
+          </button>
+        )}
+
+        <p className="text-xs text-slate-500 text-center my-4">Or</p>
+
+        <button
+          type="button"
+          className="btn-primary btn-light"
+          onClick={() => navigate("/sign-up")}
+        >
+          CREATE ACCOUNT
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
   )
 }
 

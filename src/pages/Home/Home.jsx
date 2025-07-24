@@ -15,41 +15,23 @@ import { getEmptyCardMessage } from "../../utils/helper"
 
 const Home = () => {
   const [allStories, setAllStories] = useState([])
-
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState("")
-
   const [dateRange, setDateRange] = useState({ from: null, to: null })
+  const [openAddEditModal, setOpenAddEditModal] = useState({ isShown: false, type: "add", data: null })
+  const [openViewModal, setOpenViewModal] = useState({ isShown: false, data: null })
 
-  // console.log(allStories)
-
-  const [openAddEditModal, setOpenAddEditModal] = useState({
-    isShown: false,
-    type: "add",
-    data: null,
-  })
-
-  const [openViewModal, setOpenViewModal] = useState({
-    isShown: false,
-    data: null,
-  })
-
-  // Get all travel stories
   const getAllTravelStories = async () => {
     try {
       const response = await axiosInstance.get("/travel-story/get-all")
-
-      if (response.data && response.data.stories) {
-        setAllStories(response.data.stories)
-      }
+      if (response.data && response.data.stories) setAllStories(response.data.stories)
     } catch (error) {
       console.log("Something went wrong. Please try again.")
     }
   }
 
-  // Handle Edit Story
-  const handleEdit = async (data) => {
-    setOpenAddEditModal({ isShown: true, type: "edit", data: data })
+  const handleEdit = (data) => {
+    setOpenAddEditModal({ isShown: true, type: "edit", data })
   }
 
   const handleViewStory = (data) => {
@@ -58,15 +40,10 @@ const Home = () => {
 
   const updateIsFavourite = async (storyData) => {
     const storyId = storyData._id
-
     try {
-      const response = await axiosInstance.put(
-        "/travel-story/update-is-favourite/" + storyId,
-        {
-          isFavorite: !storyData.isFavorite,
-        }
-      )
-
+      const response = await axiosInstance.put(`/travel-story/update-is-favourite/${storyId}`, {
+        isFavorite: !storyData.isFavorite,
+      })
       if (response.data && response.data.story) {
         toast.success("Story updated successfully!")
         getAllTravelStories()
@@ -76,20 +53,13 @@ const Home = () => {
     }
   }
 
-  // delete story
   const deleteTravelStory = async (data) => {
     const storyId = data._id
-
     try {
-      const response = await axiosInstance.delete(
-        "/travel-story/delete-story/" + storyId
-      )
-
+      const response = await axiosInstance.delete(`/travel-story/delete-story/${storyId}`)
       if (response.data && !response.data.error) {
         toast.success("Story deleted successfully!")
-
         setOpenViewModal((prevState) => ({ ...prevState, isShown: false }))
-
         getAllTravelStories()
       }
     } catch (error) {
@@ -97,15 +67,11 @@ const Home = () => {
     }
   }
 
-  // search story
   const onSearchStory = async (query) => {
     try {
       const response = await axiosInstance.get("/travel-story/search", {
-        params: {
-          query: query,
-        },
+        params: { query },
       })
-
       if (response.data && response.data.stories) {
         setFilterType("search")
         setAllStories(response.data.stories)
@@ -115,23 +81,19 @@ const Home = () => {
     }
   }
 
-  // Clear search
   const handleClearSearch = () => {
     setFilterType("")
     getAllTravelStories()
   }
 
-  // Handle filter travel story by date range
   const filterStoriesByDate = async (day) => {
     try {
       const startDate = day.from ? moment(day.from).valueOf() : null
       const endDate = day.to ? moment(day.to).valueOf() : null
-
       if (startDate && endDate) {
         const response = await axiosInstance.get("/travel-story/filter", {
           params: { startDate, endDate },
         })
-
         if (response.data && response.data.stories) {
           setFilterType("date")
           setAllStories(response.data.stories)
@@ -142,7 +104,6 @@ const Home = () => {
     }
   }
 
-  // Handle date range click
   const handleDayClick = (day) => {
     setDateRange(day)
     filterStoriesByDate(day)
@@ -156,8 +117,6 @@ const Home = () => {
 
   useEffect(() => {
     getAllTravelStories()
-
-    return () => {}
   }, [])
 
   return (
@@ -169,35 +128,31 @@ const Home = () => {
         handleClearSearch={handleClearSearch}
       />
 
-      <div className="container mx-auto py-10">
+      <div className="container mx-auto py-10 px-4">
         <FilterInfoTitle
           filterType={filterType}
           filterDate={dateRange}
-          onClear={() => {
-            resetFilter()
-          }}
+          onClear={() => resetFilter()}
         />
 
-        <div className="flex gap-7">
-          <div className="flex-1">
+        <div className="flex flex-col-reverse lg:flex-row gap-7">
+          <div className="w-full lg:w-3/4">
             {allStories.length > 0 ? (
-              <div className="grid grid-cols-2 gap-4">
-                {allStories.map((item) => {
-                  return (
-                    <TravelStoryCard
-                      key={item._id}
-                      imageUrl={item.imageUrl}
-                      title={item.title}
-                      story={item.story}
-                      date={item.visitedDate}
-                      visitedLocation={item.visitedLocation}
-                      isFavourite={item.isFavorite}
-                      onEdit={() => handleEdit(item)}
-                      onClick={() => handleViewStory(item)}
-                      onFavouriteClick={() => updateIsFavourite(item)}
-                    />
-                  )
-                })}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {allStories.map((item) => (
+                  <TravelStoryCard
+                    key={item._id}
+                    imageUrl={item.imageUrl}
+                    title={item.title}
+                    story={item.story}
+                    date={item.visitedDate}
+                    visitedLocation={item.visitedLocation}
+                    isFavourite={item.isFavorite}
+                    onEdit={() => handleEdit(item)}
+                    onClick={() => handleViewStory(item)}
+                    onFavouriteClick={() => updateIsFavourite(item)}
+                  />
+                ))}
               </div>
             ) : (
               <EmptyCard
@@ -206,17 +161,13 @@ const Home = () => {
                 }
                 message={getEmptyCardMessage(filterType)}
                 setOpenAddEditModal={() =>
-                  setOpenAddEditModal({
-                    isShown: true,
-                    type: "add",
-                    data: null,
-                  })
+                  setOpenAddEditModal({ isShown: true, type: "add", data: null })
                 }
               />
             )}
           </div>
 
-          <div className="w-[320px]">
+          <div className="w-full lg:w-[320px]">
             <div className="bg-white border border-slate-200 shadow-lg shadow-slate-200/60 rounded-lg">
               <div className="p-3">
                 <DayPicker
@@ -232,7 +183,6 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Add & Edit Travel Story Modal */}
       <Modal
         isOpen={openAddEditModal.isShown}
         onRequestClose={() => {}}
@@ -243,7 +193,7 @@ const Home = () => {
           },
         }}
         appElement={document.getElementById("root")}
-        className="w-[80vw] md:w-[40%] h-[80vh] bg-white rounded-lg mx-auto mt-14 p-5 overflow-y-scroll scrollbar z-50"
+        className="w-[90vw] md:w-[60%] h-[85vh] bg-white rounded-lg mx-auto mt-10 p-5 overflow-y-scroll scrollbar z-50"
       >
         <AddEditTravelStory
           storyInfo={openAddEditModal.data}
@@ -255,7 +205,6 @@ const Home = () => {
         />
       </Modal>
 
-      {/* View travel story modal */}
       <Modal
         isOpen={openViewModal.isShown}
         onRequestClose={() => {}}
@@ -266,28 +215,22 @@ const Home = () => {
           },
         }}
         appElement={document.getElementById("root")}
-        className="w-[80vw] md:w-[40%] h-[80vh] bg-white rounded-lg mx-auto mt-14 p-5 overflow-y-scroll scrollbar z-50"
+        className="w-[90vw] md:w-[60%] h-[85vh] bg-white rounded-lg mx-auto mt-10 p-5 overflow-y-scroll scrollbar z-50"
       >
         <ViewTravelStory
           storyInfo={openViewModal.data || null}
-          onClose={() => {
-            setOpenViewModal((prevState) => ({ ...prevState, isShown: false }))
-          }}
+          onClose={() => setOpenViewModal((prevState) => ({ ...prevState, isShown: false }))}
           onEditClick={() => {
             setOpenViewModal((prevState) => ({ ...prevState, isShown: false }))
             handleEdit(openViewModal.data || null)
           }}
-          onDeleteClick={() => {
-            deleteTravelStory(openViewModal.data || null)
-          }}
+          onDeleteClick={() => deleteTravelStory(openViewModal.data || null)}
         />
       </Modal>
 
       <button
-        className="w-16 h-16 flex items-center justify-center rounded-full bg-[#05b6d3] hover:bg-cyan-400 fixed right-10 bottom-10"
-        onClick={() => {
-          setOpenAddEditModal({ isShown: true, type: "add", data: null })
-        }}
+        className="w-16 h-16 flex items-center justify-center rounded-full bg-[#05b6d3] hover:bg-cyan-400 fixed right-6 bottom-6"
+        onClick={() => setOpenAddEditModal({ isShown: true, type: "add", data: null })}
       >
         <IoMdAdd className="text-[32px] text-white" />
       </button>
